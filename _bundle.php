@@ -11,6 +11,9 @@ use e;
 class Bundle extends SQLBundle {
 	
 	public function _on_message($data, $namespace = 'global') {
+		if(is_string($data))
+			$data = array('message' => $data);
+
 		$message = $this->newMessage();
 		if(!isset($data['namespace']))
 			$data['namespace'] = $namespace;
