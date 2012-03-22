@@ -10,9 +10,12 @@ use e;
  */
 class Bundle extends SQLBundle {
 	
-	public function _on_message($data, $namespace = 'global') {
+	public function _on_message($data, $namespace = 'global', $type = 'info') {
 		if(is_string($data))
 			$data = array('message' => $data);
+
+		if(!isset($data['type']))
+			$data['type'] = $type;
 
 		$message = $this->newMessage();
 		if(!isset($data['namespace']))
