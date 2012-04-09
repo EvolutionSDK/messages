@@ -20,6 +20,8 @@ class Bundle extends SQLBundle {
 		$message = $this->newMessage();
 		if(!isset($data['namespace']))
 			$data['namespace'] = $namespace;
+
+		$data['status'] = 'active';
 		
 		$message->save($data);
 
@@ -33,7 +35,7 @@ class Bundle extends SQLBundle {
 		}
 	}
 	
-	public function currentMessages($namespace = 'all') {		
+	public function currentMessages($namespace = 'all') {
 		$member = e::$members->currentMember();
 		
 		if($member) $messages = $member->getMessagesMessages();
@@ -44,7 +46,7 @@ class Bundle extends SQLBundle {
 		/**
 		 * Apply Conditions
 		 */
-		$messages->condition('status', 'active')->condition('viewed', 'no');
+		$messages->condition('status !=', 'cleared')->condition('viewed', 'no');
 		if($namespace !== 'all')
 			$messages->manual_condition('`namespace` IN ("global", "'.$namespace.'")');
 		
@@ -53,13 +55,40 @@ class Bundle extends SQLBundle {
 		 */
 		$return = array();
 		foreach($messages as $message) {
-			$message->status = 'cleared';
-			$message->viewed = 'yes';
-			$message->save();
 			$return[] = $message->__toArray();
 		}
-		
 		return $return;
+	}
+
+	public function _on_complete() {
+		try {
+			$member = e::$members->currentMember();
+			
+			if($member) $messages = $member->getMessagesMessages();
+			else $messages = e::$session->getMessagesMessages();
+		} catch(Exception $e) {
+			return;
+		}
+		
+		if(empty($messages)) return;
+		
+		/**
+		 * Apply Conditions
+		 */
+		foreach($messages as $message) {
+			switch($message->status) {
+				case 'active':
+					$message->status = 'to_clear';
+					break;
+				case 'to_clear':
+					$message->status = 'cleared';
+					break;
+				case 'cleared':
+					continue;
+			}
+			$message->viewed = 'yes';
+			$message->save();
+		}
 	}
 	
 	public function printMessages($namespace = 'none') {

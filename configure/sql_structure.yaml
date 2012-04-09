@@ -7,7 +7,7 @@ message:
 		type: string
 		field: string
 		value: string
-		status: "enum('active','cleared')"
+		status: "enum('active','to_clear','cleared')"
 		viewed: "enum('no','yes')"
 	hasOne:
 		- session.list
