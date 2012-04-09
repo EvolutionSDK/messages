@@ -33,12 +33,13 @@ class Bundle extends SQLBundle {
 		}
 	}
 	
-	public function currentMessages($namespace = 'all') {
-		
+	public function currentMessages($namespace = 'all') {		
 		$member = e::$members->currentMember();
 		
 		if($member) $messages = $member->getMessagesMessages();
 		else $messages = e::$session->getMessagesMessages();
+
+		if(empty($messages)) return array();
 		
 		/**
 		 * Apply Conditions
