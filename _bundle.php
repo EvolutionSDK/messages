@@ -42,11 +42,11 @@ class Bundle extends SQLBundle {
 		else $messages = e::$session->getMessagesMessages();
 
 		if(empty($messages)) return array();
-		
+
 		/**
 		 * Apply Conditions
 		 */
-		$messages->condition('status !=', 'cleared')->condition('viewed', 'no');
+		$messages->condition('status !=', 'cleared');
 		if($namespace !== 'all')
 			$messages->manual_condition('`namespace` IN ("global", "'.$namespace.'")');
 		
@@ -75,7 +75,7 @@ class Bundle extends SQLBundle {
 		/**
 		 * Apply Conditions
 		 */
-		foreach($messages as $message) {
+		 foreach($messages as $message) {
 			switch($message->status) {
 				case 'active':
 					$message->status = 'to_clear';
