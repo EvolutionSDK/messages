@@ -49,6 +49,8 @@ class Bundle extends SQLBundle {
 		$messages->condition('status !=', 'cleared');
 		if($namespace !== 'all')
 			$messages->manual_condition('`namespace` IN ("global", "'.$namespace.'")');
+
+		$this->__cached_messages = $messages;
 		
 		/**
 		 * Mark the messages as viewed and clear them
@@ -61,21 +63,13 @@ class Bundle extends SQLBundle {
 	}
 
 	public function _on_complete() {
-		try {
-			$member = e::$members->currentMember();
-			
-			if($member) $messages = $member->getMessagesMessages();
-			else $messages = e::$session->getMessagesMessages();
-		} catch(Exception $e) {
+		if(empty($this->__cached_messages))
 			return;
-		}
-		
-		if(empty($messages)) return;
 		
 		/**
 		 * Apply Conditions
 		 */
-		 foreach($messages as $message) {
+		 foreach($this->__cached_messages as $message) {
 			switch($message->status) {
 				case 'active':
 					$message->status = 'to_clear';
