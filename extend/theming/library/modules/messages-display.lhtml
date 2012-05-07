@@ -1,3 +1,4 @@
+<div class="jolt-messages"></div>
 <div class="messages {msg.type}" :load=":e.messages.currentMessages({:module.namespace}) as msg" :iterate="self">
 	<span class="type">{msg.type|ucwords}:</span> <span>{msg.message}</span>
 </div>
