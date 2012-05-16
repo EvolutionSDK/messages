@@ -72,11 +72,14 @@ class Bundle extends SQLBundle {
 		 foreach($this->__cached_messages as $message) {
 			switch($message->status) {
 				case 'active':
-					$message->status = 'to_clear';
-					break;
-				case 'to_clear':
 					$message->status = 'cleared';
 					break;
+				/**
+				 * Skip for now
+				 * case 'to_clear':
+				 * 	$message->status = 'cleared';
+				 * 	break;
+				 */
 				case 'cleared':
 					continue;
 			}
