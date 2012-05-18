@@ -30,16 +30,15 @@ class Bundle extends SQLBundle {
 			$message->linkMembersMember($member);
 		}
 
-		if($message->id > 0 && e::$session->_id > 0) {
-			$message->linkSessionSession(e::$session->_id);
-		}
+		if($message->id > 0 && e::$session->_id > 0)
+			$message->save(array('$session_id' => e::$session->_id));
 	}
 	
 	public function currentMessages($namespace = 'all') {
 		$member = e::$members->currentMember();
 		
 		if($member) $messages = $member->getMessagesMessages();
-		else $messages = e::$session->getMessagesMessages();
+		else $messages = $this->getMessages()->condition('$session_id', e::$session->_id);
 
 		if(empty($messages)) return array();
 
@@ -124,7 +123,7 @@ _;
 		$member = e::$members->currentMember();
 		
 		if($member) $messages = $member->getMessages();
-		else $messages = e::$session->getMessages();
+		else $messages = $this->getMessages()->condition('$session_id', e::$session->_id);
 			
 		$messages = $messages->condition('status', 'active')->condition('viewed', 'no');
 		$messages = $messages->manual_condition('`namespace` IN ("global", "'.$namespace.'")');

@@ -9,6 +9,6 @@ message:
 		value: string
 		status: "enum('active','to_clear','cleared')"
 		viewed: "enum('no','yes')"
+		$session_id: string
 	hasOne:
-		- session.list
 		- members.account
