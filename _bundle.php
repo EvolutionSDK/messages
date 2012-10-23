@@ -10,7 +10,8 @@ use e;
  */
 class Bundle extends SQLBundle {
 	
-	public function _on_message($data, $namespace = 'global', $type = 'info') {
+	public function _on_message($data, $namespace = 'global', $type = 'info', $member = false) {
+
 		if(is_string($data))
 			$data = array('message' => $data);
 
@@ -21,11 +22,21 @@ class Bundle extends SQLBundle {
 		if(!isset($data['namespace']))
 			$data['namespace'] = $namespace;
 
-		$data['status'] = 'active';
-		
+		if(empty($data['silent']))
+			$data['status'] = 'active';
+		else {
+			$data['viewed'] = 'yes';
+			$data['status'] = 'cleared';
+		}
+
 		$message->save($data);
 
-		$member = e::$members->currentMember();
+		/**
+		 * If we've passed a member to associate this message with.
+		 */
+		if(!$member || !is_object($member) || $member->__map('name') != 'member')
+			$member = e::$members->currentMember();
+
 		if($message->id > 0 && $member) {
 			$message->linkMembersMember($member);
 		}
@@ -37,8 +48,11 @@ class Bundle extends SQLBundle {
 	public function currentMessages($namespace = 'all') {
 		$member = e::$members->currentMember();
 		
+		/*
+		This here will block any messages generated PRIOR to a login because the message is linked to the session.
 		if($member) $messages = $member->getMessagesMessages();
-		else $messages = $this->getMessages()->condition('$session_id', e::$session->_id);
+		else */
+		$messages = $this->getMessages()->condition('$session_id', e::$session->_id);
 
 		if(empty($messages)) return array();
 
@@ -49,7 +63,7 @@ class Bundle extends SQLBundle {
 		if($namespace !== 'all')
 			$messages->manual_condition('`namespace` IN ("global", "'.$namespace.'")');
 
-		$this->__cached_messages = $messages;
+		$this->__cached_messages = is_array($this->__cached_messages) ? array_merge($this->__cached_messages,$messages->all()) : $messages->all();
 		
 		/**
 		 * Mark the messages as viewed and clear them
