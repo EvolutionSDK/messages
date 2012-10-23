@@ -2,8 +2,9 @@ message:
 	singular: message
 	plural: messages
 	fields:
-		namespace: string
+		+namespace: string
 		message: string
+		extra: text
 		type: string
 		field: string
 		value: string
